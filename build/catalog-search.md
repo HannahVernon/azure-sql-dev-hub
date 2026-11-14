@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a product catalog with search
 description: "Build a product catalog on Azure SQL Database with ranked search, filters, facet counts that match the data, and keyset pagination that never skips or repeats an item."

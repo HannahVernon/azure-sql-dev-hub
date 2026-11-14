@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build an inventory reservation app
 description: Build an inventory reservation app on Azure SQL Database that never oversells, with idempotent retries and an audit trail

@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a revenue reporting app
 description: Build a sales analytics app on Azure SQL Database with exact money math, partial refunds, and totals that never double-count

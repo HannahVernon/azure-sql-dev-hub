@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a SaaS starter with organizations and billing
 description: "Build a multi-tenant SaaS starter on Azure SQL Database: organizations, members and roles, plan limits, row-level security, and idempotent billing webhooks."

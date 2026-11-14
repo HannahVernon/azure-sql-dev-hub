@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a room booking app
 description: "Build a meeting-room booking app on Azure SQL Database, locally in its container or in Azure, where two bookings for the same room can never overlap, even when requests arrive at once."

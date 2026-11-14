@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a multi-tenant helpdesk
 description: Build a helpdesk on Azure SQL Database where each organization sees only its own tickets, enforced in the API and with row-level security

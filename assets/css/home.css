@@ -362,6 +362,9 @@ html:has(.qs-dialog[open]){overflow:hidden}
 @container shot (max-width:319.98px){.h .ha-app{--k:.76}}
 @container shot (max-width:289.98px){.h .ha-app{--k:.7}}
 .h a.tpl-shot:hover{text-decoration:none}
+/* A photo without a window title fills the whole picture area, edge to edge. */
+.h .tpl-shot.is-bare,.h .tpl-dshot.is-bare{padding:0}
+.h .is-bare .ha-app{--k:1;border:0;border-radius:0}
 .h .tpl-body{display:flex;flex:1;flex-direction:column;gap:8px;padding:16px 18px 14px}
 .h .tpl-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .h .tpl-card h3{font-size:15px;line-height:1.35;font-weight:600;letter-spacing:0}

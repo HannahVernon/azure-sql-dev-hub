@@ -48,6 +48,8 @@ defaults:
 # Everything that is repository plumbing rather than a page of the site.
 exclude:
   - README.md
+  # Picture notes for contributors; they name hidden apps, so they stay out of the site.
+  - assets/img/apps/SOURCES.md
   - CONTRIBUTING.md
   - CODE_OF_CONDUCT.md
   - SECURITY.md

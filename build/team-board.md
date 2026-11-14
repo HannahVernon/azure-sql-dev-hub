@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a team task board
 description: Build a team task-board app on Azure SQL Database with combined filters, due dates, and seed data that survives restarts

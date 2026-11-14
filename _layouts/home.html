@@ -175,7 +175,7 @@
         {%- for t in page.templates %}
         {%- assign prompt_href = hub_repo | append: '/blob/main/build/' | append: t.slug | append: '.md' %}
         <article class="tpl-card" id="{{ t.slug }}">
-          <a class="tpl-shot" href="{{ prompt_href }}" data-tpl-open="tpl-{{ t.slug }}" tabindex="-1" aria-hidden="true"><div class="ha-app">{% if t.img %}{% include app-photo.html img=t.img title=t.window sizes="(max-width: 700px) 100vw, 420px" %}{% else %}{% include app-shot.html key=t.shot window=true %}{% endif %}</div></a>
+          <a class="tpl-shot{% if t.img %}{% unless t.window %} is-bare{% endunless %}{% endif %}" href="{{ prompt_href }}" data-tpl-open="tpl-{{ t.slug }}" tabindex="-1" aria-hidden="true"><div class="ha-app">{% if t.img %}{% include app-photo.html img=t.img title=t.window sizes="(max-width: 700px) 100vw, 420px" %}{% else %}{% include app-shot.html key=t.shot window=true %}{% endif %}</div></a>
           <div class="tpl-body">
             <div class="tpl-top"><h3>{{ t.title }}</h3></div>
             <p>{{ t.blurb }}</p>
@@ -231,7 +231,7 @@
             {% include dialog-agent.html id=agent_id heading=ti.build_ai actions=agent_actions after="" location="scenario" skills_id="template-skills" note=ti.before_text %}
           </aside>
           <div class="tpl-dmain">
-            <div class="tpl-dshot" aria-hidden="true"><div class="ha-app">{% if t.img %}{% include app-photo.html img=t.img title=t.window sizes="(max-width: 900px) 100vw, 720px" %}{% else %}{% include app-shot.html key=t.shot window=true %}{% endif %}</div></div>
+            <div class="tpl-dshot{% if t.img %}{% unless t.window %} is-bare{% endunless %}{% endif %}" aria-hidden="true"><div class="ha-app">{% if t.img %}{% include app-photo.html img=t.img title=t.window sizes="(max-width: 900px) 100vw, 720px" %}{% else %}{% include app-shot.html key=t.shot window=true %}{% endif %}</div></div>
             {%- for para in t.description %}
             <p class="tpl-desc">{{ para }}</p>
             {%- endfor %}

@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build an IoT telemetry dashboard
 description: "Build an IoT telemetry dashboard on Azure SQL Database: batched ingest without duplicates, a columnstore readings table, exact rollups by time window, late readings, and alerts."

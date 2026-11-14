@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a chat-with-your-docs app
 description: "Build a document Q&A app on Azure SQL Database: answers grounded in your documents with citations, passages searched with VECTOR_DISTANCE, and saved conversations."

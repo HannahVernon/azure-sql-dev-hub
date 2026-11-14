@@ -255,6 +255,225 @@ template_inside:
   sql: Azure SQL features it uses
   try: Check it works
 templates:
+- slug: product-docs-search
+  img: product-docs-search
+  title: Store search with AI answers
+  tag: Full app
+  blurb: Help shoppers find products and get instant answers using AI-powered search.
+  summary: Help shoppers find products and get instant answers using AI-powered search.
+  covers: Full-text search, vector search, hybrid ranking, cited answers
+  description:
+  - >-
+    A search page for an online store. Shoppers type the way they talk, like "warm jacket for a rainy hike under $150", and see the right products next to the help article that answers them. Questions get a short answer with links to its sources. Staff see what people search for and which searches come up empty. Tell your agent what you sell and what the store is called, and it builds the catalog to match.
+  - >-
+    Azure SQL Database does the searching in a single query. Full-text search matches the words, vector search matches the meaning, and results found both ways rank first. Turn on Under the hood to see the exact SQL and how fast it ran. Run it on your machine, or deploy it to Azure Container Apps with azd up or to Microsoft Fabric.
+  features:
+  - Search by words, meaning or both, with filters and counts
+  - Answers from the help center with citations you can click
+  - Similar products found by vector distance
+  - Insights on top searches, empty searches and slow queries
+  - Azure OpenAI with Microsoft Entra sign-in, or a local model offline
+  tables:
+  - [products, "Name, brand, category, price, stock, specs, image and embedding"]
+  - [articles, "Help articles, grouped by section"]
+  - [article_passages, "Each article split into passages, each with its own embedding"]
+  - [search_log, "Every search with its mode, result count and duration"]
+  - [query_embedding_cache, "Query embeddings, so a repeated search doesn't call the model again"]
+  - [product_edits, "Staff edits to products, with who made them and when"]
+  sql:
+  - [Full-text search, "CONTAINSTABLE ranks products and passages by the words in the search."]
+  - [VECTOR and VECTOR_SEARCH, "Embeddings live in VECTOR columns and are searched through an approximate DiskANN index."]
+  - [Hybrid ranking in one query, "Word and meaning results merge with reciprocal rank fusion in a single statement."]
+  - [Query Store, "Insights lists the slowest search queries straight from Query Store."]
+  try:
+  - [Search the way you talk, "Search for \"warm jacket for a rainy hike under $150\". Jackets under $150 come up, including rain shells that never use the words \"warm\" or \"rainy\"."]
+  - [Ask a question, "Ask \"Can I return boots I wore outside?\" The answer cites the returns article. Click the citation to jump to the passage."]
+  - [Look under the hood, "Turn on Under the hood. One SQL statement runs both searches, and you can see how long it took and that the vector index was used."]
+- slug: sales-dashboard
+  img: sales-dashboard
+  title: Sales dashboard with AI Q&A
+  tag: Full app
+  blurb: See how your business is doing at a glance, and ask questions in plain English to get instant charts and answers.
+  summary: See how your business is doing at a glance, and ask questions in plain English to get instant charts and answers.
+  covers: Columnstore, KPIs, cross-filtering, read-only AI questions
+  description:
+  - >-
+    A sales dashboard for a business owner. Open it and see in seconds how the business is doing: revenue, new customers, revenue per customer and churn, each compared with last year. Click a region, channel or product to filter every chart, and open the invoices behind any number. When the charts don't answer it, ask in plain English, like "which add-ons grew fastest in Europe since spring?", and get a chart and a short answer. Tell your agent what kind of business it is and what it's called, and it builds the data to match.
+  - >-
+    Azure SQL Database keeps it fast. Millions of sales records sit in a columnstore index ordered by date, so every chart answers in a fraction of a second. Questions run as a separate database user that can only read, so a question can never change your data. Turn on Under the hood to see each chart's SQL and how much data it skipped. Run it on your machine, or deploy it to Azure Container Apps with azd up or to Microsoft Fabric.
+  features:
+  - KPI tiles with change against last year and sparklines
+  - Click any region, channel or product to filter every chart
+  - Drill into the invoices behind any number
+  - Plain-English questions answered with a chart and the SQL
+  - Insights on questions asked, failed questions and slow queries
+  tables:
+  - [accounts, "Customers, with region, channel, plan, seats, billing period, sign-up and churn dates"]
+  - [plans, "The plans and their price per seat"]
+  - [products, "Plans and add-ons with their prices"]
+  - [account_addons, "The add-ons each account uses, from when"]
+  - [invoices, "One per billing, with date, plan, billing period and status"]
+  - [invoice_lines, "Plan and add-on charges, refunds and credits, in a columnstore index"]
+  - [question_log, "Every question, its SQL, row count and duration"]
+  - [saved_questions, "Questions saved to rerun with fresh data"]
+  sql:
+  - [Clustered columnstore index, "Invoice lines are stored by column and ordered by date, so a date filter skips whole row groups."]
+  - [Batch mode, "Dashboard queries process rows in batches, so aggregates over millions of rows return in well under a second."]
+  - [Read-only database user, "Generated questions run as a user that can only SELECT from the reporting views."]
+  - [Query Store, "Insights lists the slowest dashboard and question queries straight from Query Store."]
+  try:
+  - [Read the overview, "Open the last 90 days against last year. Each tile matches a direct SQL query to the cent."]
+  - [Ask a question, "Ask \"Which add-ons grew fastest in Europe since spring?\" You get a bar chart, a sentence naming the top add-on, and the read-only SQL."]
+  - [Try to change data, "Ask \"Delete all refunds from last year.\" Nothing changes: the app says it can only read, and the database refuses the statement too."]
+- slug: support-desk
+  img: support-desk
+  title: Help desk with tenant isolation
+  tag: Full app
+  blurb: Run one support app for many companies, where each company sees only its own tickets.
+  summary: Run one support app for many companies, where each company sees only its own tickets.
+  covers: Row-level security, full-text search, similar tickets
+  description:
+  - >-
+    A help desk that many small companies sign up for. Agents work an inbox sorted by SLA, with queues, priorities and timers that turn amber and then red. Open a ticket to see the conversation, internal notes and the customer's other tickets, with a suggested reply and similar solved tickets. Customers send tickets through each company's own form. Tell your agent what kind of support it is and what the product is called, and it builds the companies and tickets to match.
+  - >-
+    Azure SQL Database keeps each company's tickets apart. A row-level security policy filters every query and blocks every write by the company set in the session context, so even a bug in the app can't show one company another's tickets. The session context is set and cleared on every request, so pooled connections never leak it. Turn on Under the hood to see the policy and the session context of your request. Run it on your machine, or deploy it to Azure Container Apps with azd up or to Microsoft Fabric.
+  features:
+  - An inbox with queues, SLA timers and priority, sorted by what's due first
+  - Tickets with the conversation, internal notes and the customer's history
+  - A suggested reply and similar solved tickets from the same company
+  - A customer form for each company
+  - A platform admin view that shows whose data you're looking at
+  tables:
+  - [tenants, "The companies that use the help desk"]
+  - [members, "Who can sign in, and to which company"]
+  - [agents, "Each company's agents and admins"]
+  - [queues, "Each company's queues"]
+  - [sla_policies, "First reply and resolution targets per priority"]
+  - [customers, "Each company's customers"]
+  - [tickets, "Tickets with SLA due times and an embedding for finding similar ones"]
+  - [ticket_messages, "Customer messages, replies and internal notes"]
+  - [ticket_events, "Status, priority and assignee changes"]
+  sql:
+  - [Row-level security, "A filter and block predicate on every company table, keyed on the session context."]
+  - [SESSION_CONTEXT, "Set for each request with sp_set_session_context and cleared at the end, even when the request fails."]
+  - [Full-text search, "Search across subjects and messages, inside the company's own tickets."]
+  - [VECTOR_DISTANCE, "Finds similar solved tickets, only within the same company."]
+  try:
+  - [Sign in as an agent, "Sign in to Fourth Coffee. The inbox shows only Fourth Coffee's tickets, breached ones first."]
+  - [Open another company's ticket, "Open a ticket, then change the id in the address to one of another company's tickets. You get not found, because the database returned no row."]
+  - [Find similar tickets, "Open a ticket. Similar solved tickets come only from the same company, even when another company has a closer one."]
+- slug: device-monitoring
+  img: device-monitoring
+  title: Real-time IoT dashboard
+  tag: Full app
+  blurb: Stream readings from thousands of devices and watch charts and alerts update as the data arrives.
+  summary: Stream readings from thousands of devices and watch charts and alerts update as the data arrives.
+  covers: Batched ingest, columnstore, DATE_BUCKET, alerts in SQL
+  description:
+  - >-
+    A live console for a fleet of sensors. A built-in simulator streams readings from thousands of devices, and the overview shows every site and asset, readings per second, open alerts and charts that move as the data arrives. Open a device to see its readings against its limits, acknowledge alerts, edit the rules and preview what they would catch, and ask for a plain-English explanation of an alert. Tell your agent what kind of devices you have and what the business is called, and it builds the fleet to match.
+  - >-
+    Azure SQL Database takes the stream and answers fast. Readings arrive in batches that are safe to retry, so a resent batch stores nothing twice, and land in an ordered columnstore with millions of rows. DATE_BUCKET rolls them up by time window, late readings land in the right bucket, and the alert rules run in SQL. Turn on Under the hood to see the ingest statement, the rollup query with its time, and the row groups. Run it on your machine, or deploy it to Azure Container Apps with azd up or to Microsoft Fabric.
+  features:
+  - A live overview of every site and asset, with readings per second
+  - Alerts that open, update and close, with acknowledge
+  - A device page with readings against its limits
+  - A rules editor that previews what a rule would catch
+  - Plain-English explanations of an alert from the readings around it
+  tables:
+  - [sites, "The warehouses and depots"]
+  - [assets, "Freezers, chillers, docks and trucks, with their set points"]
+  - [devices, "Every sensor and the asset it's on"]
+  - [readings, "Every reading, in an ordered columnstore that skips duplicates"]
+  - [latest_readings, "The newest reading for each device and metric"]
+  - [ingest_batches, "One row per batch, with its counts and duration"]
+  - [alert_rules, "The alert rules and their limits"]
+  - [alerts, "Alerts as they open, update, close and are acknowledged"]
+  sql:
+  - [Ordered columnstore, "Millions of readings stored by column and ordered by time, so a time filter skips whole row groups."]
+  - [Batched ingest, "OPENJSON turns each batch into one INSERT, and a unique index that ignores duplicates makes retries safe."]
+  - [DATE_BUCKET, "Rolls readings up into fixed time windows, with late readings in the right one."]
+  - [Alerts in SQL, "A stored procedure evaluates every rule against the latest readings every 15 seconds."]
+  try:
+  - [Watch it live, "Open the overview. Readings per second, the charts and the open alerts update as the simulator streams."]
+  - [Follow an alert, "When a freezer starts warming, its square turns amber and an alert opens. Acknowledge it, and it closes once the readings recover."]
+  - [Resend a batch, "The simulator resends a few batches on purpose. Under the hood shows them skipped, with nothing stored twice."]
+- slug: online-store
+  img: online-store
+  title: Online store that never oversells
+  tag: Full app
+  blurb: Sell limited stock and bookable slots without overselling, even when many customers order at once.
+  summary: Sell limited stock and bookable slots without overselling, even when many customers order at once.
+  covers: Concurrency, idempotent checkout, transactional outbox
+  description:
+  - >-
+    An online store for things there are only so many of: a limited run released in a timed drop, and appointments only one customer can have. Shoppers watch the stock count fall live, put something in their cart, and get ten minutes to check out before it goes back on sale. Staff watch orders arrive and go out to the warehouse and workshop, and can fire hundreds of buyers at a drop at once to see that it never sells one more than it has. Tell your agent what you sell and what the store is called, and it builds the products to match.
+  - >-
+    Azure SQL Database keeps it honest. One conditional UPDATE takes stock or refuses, a unique idempotency key makes a double-clicked checkout one order, and each order is written with its outbox row in one transaction, so background workers send every order on exactly once. Turn on Under the hood to see the reserve statement, the locking it uses and the outbox queue. Run it on your machine, or deploy it to Azure Container Apps with azd up or to Microsoft Fabric.
+  features:
+  - A live drop page with stock left by size and a countdown
+  - Cart holds that expire and go back on sale
+  - A booking calendar where a slot can't be taken twice
+  - A rush simulator that fires hundreds of buyers at once
+  - A staff page with live orders, the outbox and the workers
+  tables:
+  - [products, "Bikes and services, with prices"]
+  - [drops, "Each release's window, per-shopper limit and sold-out time"]
+  - [variants, "Stock per drop and size: total, held and sold"]
+  - [slots, "Service appointments with capacity, held and booked"]
+  - [holds, "Cart items until they expire, are released or are checked out"]
+  - [orders, "Orders with their idempotency key"]
+  - [order_lines, "What each order bought"]
+  - [outbox, "One message per order for the workers to send, with its lease and attempts"]
+  sql:
+  - [Conditional UPDATE, "Stock is taken only if enough is left, in one statement, so two buyers can't get the last one."]
+  - [Idempotency key, "A retried or double-clicked checkout returns the same order instead of a second one."]
+  - [Transactional outbox, "Each order and its outbox row commit together, and workers claim rows with READPAST so each is sent once."]
+  - [Query Store, "The staff page lists the slowest statements during a rush, labeled by screen."]
+  try:
+  - [Run a rush, "On the staff page, send 500 buyers at a drop of 100. Exactly 100 sell, none oversold, and every order is sent once."]
+  - [Watch the naive way fail, "Run the same rush with the naive read-then-write lane. It sells far more than it has."]
+  - [Check out twice, "Double-click Place order. You get one order, and the second click shows the same one again."]
+- slug: team-wiki
+  img: team-wiki
+  title: Team wiki with time travel
+  tag: Full app
+  blurb: Keep your team's pages and tasks, and see or restore any of them as they were at an earlier time.
+  summary: Keep your team's pages and tasks, and see or restore any of them as they were at an earlier time.
+  covers: Temporal tables, time travel, conflicts, restore
+  description:
+  - >-
+    A wiki and task board for a team. Write pages in Markdown, link tasks to them, and see what changed this week. Drag the time slider to read the whole wiki as it was last Tuesday at 3 pm, compare any two versions side by side, and restore an old one. When two people edit the same page, the second save offers to merge instead of overwriting. Ask for a summary of what changed on a page since a date. Tell your agent what kind of team it is and what it's called, and it writes pages and history to match.
+  - >-
+    The history comes from Azure SQL Database itself. Pages and tasks are system-versioned temporal tables, so the database records every save, and FOR SYSTEM_TIME AS OF shows the wiki exactly as it was at any moment. A retention policy keeps a year of history. Turn on Under the hood to see the time-travel query and how many rows came from history. Run it on your machine, or deploy it to Azure Container Apps with azd up or to Microsoft Fabric.
+  features:
+  - A time slider that shows the whole wiki as it was at any moment
+  - Side-by-side comparison of any two versions, and restore
+  - Merge or overwrite when two people edit the same page
+  - A task board linked to pages, and a feed of this week's changes
+  - Search now or as of a past date, and AI summaries of what changed
+  tables:
+  - [pages, "The current version of each page, with its section, author and edit summary"]
+  - [pages_history, "Every earlier page version, kept by the database for a year"]
+  - [tasks, "The current version of each task, with assignee, status and linked page"]
+  - [tasks_history, "Every earlier task version"]
+  - [people, "Team members and their roles"]
+  - [sections, "The sections of the page tree"]
+  - [change_summaries, "Cached summaries of what changed on a page"]
+  sql:
+  - [Temporal tables, "The database records every version in a history table, not app code."]
+  - [FOR SYSTEM_TIME AS OF, "Shows every page, task and search result exactly as it was at one moment."]
+  - [Optimistic concurrency, "Each save carries the rowversion it started from, so a conflicting edit is caught, never lost."]
+  - [History retention, "A retention policy removes history older than a year on its own."]
+  try:
+  - [Go back in time, "Click Last Tuesday 3 pm. The page tree, the open page and the task board all change to how they were then."]
+  - [Compare two versions, "Open the Release process history and compare v5 with v6. The canary step added after an incident shows as new lines."]
+  - [Save the same page twice, "Open one page in two windows and save both. The second save offers Merge or Overwrite, and both texts stay in the history."]
+# Apps kept but hidden from the site, the agent files and the sitemaps. Their
+# prompts in build/ carry `published: false`, and their llms.txt lines sit in a
+# Liquid comment. To show one again, move its entry back under `templates`,
+# remove `published: false` from its prompt, and move its llms.txt line out.
+hidden_templates:
 - slug: team-board
   shot: board
   title: Team board
@@ -284,36 +503,6 @@ templates:
   - [Stack three filters, "Pick a project, an assignee and Overdue. Only tasks that match all three stay."]
   - [Restart everything, "Edit a seeded task, then restart the app and the database. The edit is still there."]
   - [Check what's overdue, "Overdue comes from the app's own clock, so the same tasks show as overdue on every run."]
-- slug: inventory-reservations
-  shot: inventory
-  title: Inventory reservations
-  tag: Full app
-  blurb: Reserve stock under concurrent orders without overselling. Retries return the same result, and stock and audit rows change together.
-  summary: Reserve stock without overselling, even when orders arrive together.
-  covers: Concurrency, retries, transactions
-  description:
-  - >-
-    A reservation system for a small equipment supplier. Browse the stock, see what's on hand, reserved and still available, and reserve, confirm or cancel orders. Every stock change is recorded, so you can trace how each number got where it is.
-  - >-
-    The hard part is two customers going for the last item at the same moment. Azure SQL settles it: one reservation wins, the other is turned away, and available stock can't drop below zero. A retried request gets the original answer instead of reserving twice, and a reservation and its audit record are saved together or not at all.
-  features:
-  - Shows on hand, reserved and available stock
-  - Reserve, confirm and cancel, with fixed state rules
-  - Idempotency keys, so a retry doesn't reserve twice
-  - An audit entry for every stock movement
-  tables:
-  - [products, "Name and on-hand stock, which can't go below zero"]
-  - [reservations, "Product, quantity and state: active, confirmed or cancelled"]
-  - [movements, "The audit trail of stock changes"]
-  - [requests, "Each idempotency key with its payload and first response"]
-  sql:
-  - [Transactions, "A reservation and its audit entry commit together or not at all."]
-  - [CHECK constraints, "Quantities stay positive, stock can't go negative, and states stay valid."]
-  - [Primary key on the idempotency key, "A retry finds the stored response instead of reserving again."]
-  try:
-  - [Buy the last item twice at once, "Two reservations race for the last unit. One succeeds; the other is rejected."]
-  - [Retry a reservation, "Send the same request again. You get the original result, not a second reservation."]
-  - [Fail halfway through, "Make the audit write fail. Stock and the audit trail both stay unchanged."]
 - slug: revenue-reporting
   shot: revenue
   title: Revenue reporting
@@ -373,37 +562,6 @@ templates:
   - [Import the same file twice, "The second import returns the original receipt and changes nothing."]
   - [Send a conflicting event, "An event that disagrees with the stored one is rejected, not overwritten."]
   - [Deliver events out of order, "Latest status comes out the same, whatever order the events arrive in."]
-- slug: multi-tenant-helpdesk
-  shot: helpdesk
-  title: Multi-tenant helpdesk
-  tag: Full app
-  blurb: Signed identities, tenant isolation in both the API and the database, role checks, and safe connection reuse.
-  summary: A helpdesk where each organization sees only its own tickets.
-  covers: Identity, isolation, roles, connection reuse
-  description:
-  - >-
-    A support desk shared by several organizations. People list, create, update, search and export tickets, and administrators assign them to teammates. Everyone sees only their own organization's tickets.
-  - >-
-    Who you are comes from your signed identity, not from what a request claims. Azure SQL enforces the separation itself with row-level security, so even a query that forgets to filter can't reach another organization's rows. The app connects as a database user that can work with tickets but can't change those rules, and a reused connection is reset before the next person's request.
-  features:
-  - List, create, update, search and export tickets
-  - "Administrators assign tickets; members can't"
-  - The organization comes from the signed identity, not the request
-  - Tenant checks in the API and in the database
-  tables:
-  - [tickets, "Title, description, status, assignee and owning organization"]
-  sql:
-  - [Row-level security, "A filter predicate and block predicates keep each organization in its own rows."]
-  - [SESSION_CONTEXT, "Set for each request from the signed identity, and reset when a connection is reused."]
-  - [A least-privilege app user, "The app's database user reads and writes tickets but can't change the security policy."]
-  try:
-  - [Sign in as the other organization, "You see only that organization's tickets, in the API and in the database."]
-  - [Change the organization in a request, "It's ignored. The signed identity decides."]
-  - [Assign a ticket as a member, "It's refused. Only that organization's administrators can assign."]
-# The apps below show a screenshot in place of a drawn screen: `img` names
-# its files in assets/img/apps and `window` is the window's title. Each is a
-# real app built from its prompt, restyled in the Fluent look and shown in use
-# (assets/img/apps/SOURCES.md).
 - slug: docs-chat
   img: docs-chat
   window: Contoso Handbook
@@ -467,63 +625,6 @@ templates:
   - [Ask for revenue by region, "Ask for total revenue by region for completed orders in 2025. The totals match a direct SQL query, with a bar chart of the four regions."]
   - [Ask it to delete, "Ask it to delete all refunded orders. Nothing changes, and the app says it only runs read-only queries."]
   - [Ask for too much, "List every order line. The app shows 1,000 rows and says the result was cut off."]
-- slug: catalog-search
-  img: catalog-search
-  window: Contoso Store
-  title: Product catalog search
-  tag: Full app
-  blurb: Ranked keyword search, filters with counts that match the data, and keyset paging that never skips or repeats a product.
-  summary: Search, filter and page through a store's catalog.
-  covers: Ranking, facet counts, keyset paging
-  description:
-  - >-
-    A product catalog for an electronics and home store. Search by keyword, narrow by category, brand, price and stock, see how many products each filter would show, sort, and page through the results. The search, filters and page are in the URL, so a shared link shows the same results.
-  - >-
-    Ranking, filtering, counting and paging all happen in Azure SQL. Products with every word in the name rank first. Each filter's counts reflect the search and the other filters. Pages use a keyset cursor instead of an offset, so paging through returns each product exactly once, even across equal prices. Characters like % and _ in a search are matched as text.
-  features:
-  - Keyword search ranked by name match, then rating
-  - Filters by category, brand, price and stock, with counts
-  - Sort by relevance, price or rating, 20 to a page
-  - Shareable URLs for any search, filter and page
-  tables:
-  - [products, "Name, description, category, brand, price in cents, rating and stock"]
-  sql:
-  - [Keyset pagination, "An opaque cursor picks up after the last row shown, so no product is skipped or repeated."]
-  - [Grouped counts, "Facet counts are computed in SQL for the current search and the other filters."]
-  - [Escaped pattern matching, "Characters such as %, _ and [ are matched literally and never cause an error."]
-  try:
-  - [Search for wireless headphones, "Every result has both words, and results with both in the name come first."]
-  - [Check the counts, "Filter to Audio and one brand. Each count matches a direct SQL count."]
-  - [Page through by price, "Sort by price, low to high, and page through. Prices never go down, even across pages."]
-- slug: iot-telemetry
-  img: iot-telemetry
-  window: Contoso Buildings
-  title: IoT telemetry
-  tag: Full app
-  blurb: Batched ingest without duplicates, a columnstore readings table, exact rollups by time window, late readings, and alerts.
-  summary: A dashboard for sensor readings from three buildings.
-  covers: Ingest, columnstore, rollups, alerts
-  description:
-  - >-
-    A dashboard for temperature and humidity sensors in three buildings. Devices send readings in batches, and the dashboard shows each site's devices, a chart for any device, metric and time window, and the current alerts.
-  - >-
-    Azure SQL keeps the numbers exact. Raw readings go into a table with a clustered columnstore index, and a repeated reading is counted as a duplicate rather than stored twice. Minimum, maximum, average and count for 5-minute, hourly and daily windows are computed in SQL, so they agree with the raw readings even after a late reading lands. A 5-minute window that averages above 30 degrees raises an alert.
-  features:
-  - Batches of up to 1,000 readings, with duplicates counted and skipped
-  - Readings up to 7 days late land in the right window
-  - Minimum, maximum, average and count by 5 minutes, hour or day
-  - Alerts for windows that run hot
-  tables:
-  - [devices, "Name and site: north, south or east"]
-  - [readings, "Device, metric, value, and when it was recorded and received"]
-  sql:
-  - [Clustered columnstore index, "Raw readings are stored by column, compressed and quick to aggregate."]
-  - [A unique key on device, metric and time, "A repeated reading is recognized and stored once."]
-  - [Windowed aggregates, "Rollups group readings by UTC window in SQL, so they match the raw data."]
-  try:
-  - [Check an hour, "A device's hourly minimum, maximum, average and count match a direct SQL query."]
-  - [Send a duplicate, "Repeat a stored reading. The response counts it as a duplicate, and it's stored once."]
-  - [Send a late reading, "Send a reading from two hours ago. Its 5-minute window's average and count change."]
 - slug: job-queue
   img: job-queue
   window: Contoso Jobs
@@ -615,35 +716,6 @@ templates:
   - [Sign in as Cara, "Only Acme's projects and members appear. Nothing from Globex does."]
   - [Hit the Free plan limit, "As Gus, a third Globex project is rejected with the limit named. After a Team activation event, it's accepted."]
   - [Send an invoice twice, "The same signed invoice.paid event, sent twice, records one invoice."]
-- slug: wiki-history
-  img: wiki-history
-  window: Contoso Wiki
-  title: Team wiki with history
-  tag: Full app
-  blurb: Full version history from temporal tables. View any page as it was, compare and restore versions, and catch conflicting edits.
-  summary: A team wiki where the database keeps every version.
-  covers: Temporal tables, conflicts, restore
-  description:
-  - >-
-    A team wiki for Markdown pages. See each page's full history, view it as it was at any moment, compare two versions line by line and restore an old one. Deleted pages can be brought back.
-  - >-
-    The history comes from Azure SQL itself. The pages table is a system-versioned temporal table, so every save, restore and delete is recorded by the database, and FOR SYSTEM_TIME AS OF shows a page as it stood at any time. Each save carries the version it started from, so when two people edit the same version, the second save is caught and its text kept instead of silently overwriting the first.
-  features:
-  - Markdown pages with a full history, newest first
-  - Any page as of any moment, and two versions side by side
-  - Restore an old version as a new one, keeping every version
-  - Deleted pages you can bring back with their history
-  tables:
-  - [pages, "Slug, title, Markdown body, author and edit summary"]
-  - [pages_history, "Every earlier version, kept by the database"]
-  sql:
-  - [Temporal tables, "The database records every version in a history table, not app code."]
-  - [FOR SYSTEM_TIME AS OF, "Shows a page exactly as it was at any moment."]
-  - [Optimistic concurrency, "A save based on an old version is rejected, so no edit is lost."]
-  try:
-  - [Edit three times, "Create a page and edit it three times. Its history lists four versions, newest first."]
-  - [Go back in time, "View the page as of a moment between the second and third edits. The second edit's text shows."]
-  - [Save the same version twice, "Open one version in two places and save both. The second save is rejected, and its text is kept."]
 # The building blocks. `shot` picks each one's picture from
 # _includes/app-shot.html, drawn like the apps above.
 scenarios:

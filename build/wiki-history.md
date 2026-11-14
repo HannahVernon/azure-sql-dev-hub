@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a team wiki with version history
 description: "Build a team wiki on Azure SQL Database with full version history from temporal tables: view any page as it was, compare and restore versions, and catch conflicting edits."

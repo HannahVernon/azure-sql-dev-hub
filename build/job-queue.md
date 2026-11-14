@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a background job queue
 description: "Build a background job queue on Azure SQL Database: workers claim jobs safely with READPAST, retries back off, crashed workers' jobs are picked up again, and side effects go out once."

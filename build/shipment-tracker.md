@@ -1,4 +1,6 @@
 ---
+# Hidden: kept in the repository, not published (see hidden_templates in index.md).
+published: false
 layout: page
 title: Build a shipment tracker
 description: Build a shipment tracker on Azure SQL Database that imports event batches atomically, catches duplicates and conflicts, and orders late events the same way on every run
