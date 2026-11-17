@@ -221,10 +221,10 @@ setup:
   - key: apple
     runtime: unknown
     name: Apple container
-    use: <code>container</code>, with <code>container image pull</code> to pull and <code>--memory 4g --detach</code> in place of <code>-d</code>
+    use: <code>container</code>, with <code>container image pull</code> to pull and <code>--memory 2g --detach</code> in place of <code>-d</code>
     swap:
     - ['docker pull ', 'container image pull ']
-    - [' -d ', ' --memory 4g --detach ']
+    - [' -d ', ' --memory 2g --detach ']
     - ['docker ', 'container ']
     note: Apple's container tool, on a Mac with Apple silicon and macOS 26 or later. Start it with <code>container system start</code>; <code>container system status</code> checks it.
   - key: wsl
