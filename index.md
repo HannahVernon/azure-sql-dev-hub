@@ -157,8 +157,13 @@ setup:
         mcr.microsoft.com/mssql/azure-sql-db-server:latest
   - key: query
     title: Connect and query
-    text: Run this in the same terminal, so it can read the password. The result should name <b>Microsoft SQL Azure</b>.
+    text: Run this in the same terminal, so it can read the password. It waits up to a minute for the engine to start, usually a few seconds. The result should name <b>Microsoft SQL Azure</b>. If it shows an error instead, the container's logs say why.
     code: |-
+      for i in {1..30}; do
+        docker exec sqldb /opt/mssql-tools18/bin/sqlcmd -S localhost \
+          -U sa -P "$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1 && break
+        sleep 2
+      done
       docker exec sqldb /opt/mssql-tools18/bin/sqlcmd \
         -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C \
         -Q "SELECT @@VERSION;"
@@ -177,10 +182,10 @@ setup:
   - key: apple
     runtime: unknown
     name: Apple container
-    use: <code>container</code>, with <code>container image pull</code> to pull and <code>--detach</code> in place of <code>-d</code>
+    use: <code>container</code>, with <code>container image pull</code> to pull and <code>--memory 4g --detach</code> in place of <code>-d</code>
     swap:
     - ['docker pull ', 'container image pull ']
-    - [' -d ', ' --detach ']
+    - [' -d ', ' --memory 4g --detach ']
     - ['docker ', 'container ']
     note: Apple's container tool, on a Mac with Apple silicon and macOS 26 or later. Start it with <code>container system start</code>; <code>container system status</code> checks it.
   - key: wsl

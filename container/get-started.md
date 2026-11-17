@@ -114,11 +114,17 @@ volumes:
 
 ### 3. Connect and run your first query {#connect}
 
-The container bundles sqlcmd, so nothing needs installing on your machine. The `-C` flag trusts the container's self-signed certificate.
+The container bundles sqlcmd, so nothing needs installing on your machine. The `-C` flag trusts the container's self-signed certificate. The engine takes a few seconds to start after `docker run`, so this waits up to a minute for it to accept connections, then runs the query. If it shows an error instead, `docker logs sqldb` says why.
 
 ```bash
+for i in {1..30}; do
+  docker exec sqldb /opt/mssql-tools18/bin/sqlcmd -S localhost \
+    -U sa -P "$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1 && break
+  sleep 2
+done
 docker exec sqldb /opt/mssql-tools18/bin/sqlcmd \
-  -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -Q "SELECT @@VERSION;"
+  -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C \
+  -Q "SELECT @@VERSION;"
 ```
 
 A result that names Microsoft SQL Azure confirms the Azure SQL Database engine.
@@ -213,7 +219,7 @@ docker logs sqldb
 ```
 
 - **The container exits.** Check for a missing `ACCEPT_EULA=Y`. The container does not start without it.
-- **The container is Up, but connections fail** with a login timeout or "server is not found". The engine inside the container did not start. The usual causes are an SA password that does not meet the policy (8 or more characters, with at least three of upper case, lower case, digits, and symbols) or too little memory.
+- **The container is Up, but connections fail** with a login timeout or "server is not found". Right after `docker run`, the engine is still starting: wait a few seconds and try again. If it keeps failing, the engine inside the container did not start. The usual causes are an SA password that does not meet the policy (8 or more characters, with at least three of upper case, lower case, digits, and symbols) or too little memory.
 
 Fix the cause, remove the container with `docker rm -f sqldb`, and run it again. Changing an environment variable does not affect a container that already exists.
 
