@@ -295,7 +295,14 @@ html:has(.qs-dialog[open]){overflow:hidden}
 .h .qs-dstep p .qs-dlink{display:inline;font-size:inherit;font-weight:500}.h .qs-dstep p .qs-dlink svg{display:inline;margin-left:2px;vertical-align:-1px}
 .h .su-enote,.h .su-enojs{font-size:13px;line-height:1.5;color:var(--text-3)}
 .h .su-engine .sk-seg,.h .su-enote{display:none}.js .h .su-engine .sk-seg{display:inline-flex}.js .h .su-enote:not([hidden]){display:block}.js .h .su-enojs{display:none}
-@media (max-width:560px){.js .h .su-engine .sk-seg{display:grid;grid-template-columns:1fr 1fr;align-self:stretch}.h .su-engine .sk-seg button{justify-content:center}}
+.h .su-engine .sk-seg button[hidden],.js .h .su-dialog [data-shell][hidden]{display:none}
+.h .su-picks{display:none}.js .h .su-picks{display:flex;flex-wrap:wrap;gap:12px 20px;margin-bottom:10px}
+.h .su-pick{display:flex;flex-direction:column;gap:6px;min-width:0}
+.h .su-plabel{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.h .su-engine .sk-seg{margin-bottom:0;padding:2px}
+.h .su-engine .sk-seg button{min-height:30px;padding:0 12px;border-radius:6px}
+.h .su-shell{margin-bottom:-4px;font-size:12.5px;font-weight:600;color:var(--text-3)}.js .h .su-shell{display:none}
+@media (max-width:560px){.h .su-pick{flex:1 1 100%}.js .h .su-engine .sk-seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;align-self:stretch}.h .su-engine .sk-seg button{justify-content:center}}
 .h .su-links{display:flex;flex-direction:column;align-items:flex-start;gap:8px;font-size:13.5px}
 .h .su-links h4{margin:0 0 2px;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
 .h .su-links a{display:inline-flex;align-items:center;gap:3px}

@@ -110,16 +110,25 @@
             {%- if o.engines %}
             {%- assign e0 = o.engines[0] %}
             <div class="su-engine">
+              <div class="su-picks">
+              {%- if o.os %}
+              <div class="su-pick"><span class="su-plabel" aria-hidden="true">{{ sl.os_label }}</span>
+              <div class="sk-seg" role="group" aria-label="{{ sl.os }}">
+                {%- for s in o.os %}
+                <button type="button" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}" data-os="{{ s.key }}" data-os-shell="{{ s.shell | default: 'sh' }}" data-os-engines="{{ s.engines | join: ' ' }}">{{ s.name }}</button>
+                {%- endfor %}
+              </div></div>
+              {%- endif %}
+              <div class="su-pick"><span class="su-plabel" aria-hidden="true">{{ sl.engine_label }}</span>
               <div class="sk-seg" role="group" aria-label="{{ sl.engine }}">
                 {%- for e in o.engines %}
-                <button type="button" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}" data-engine="{{ e.key }}"
+                <button type="button" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}" data-engine="{{ e.key }}"{% if o.os %}{% unless o.os[0].engines contains e.key %} hidden{% endunless %}{% endif %}
                         data-event="site/action" data-event-action="runtimeSelected" data-event-action-location="install-panel"
                         data-event-runtime-id="{{ e.runtime | default: e.key }}">{{ e.name }}</button>
                 {%- endfor %}
+              </div></div>
               </div>
-              {%- for e in o.engines %}
-              <p class="su-enote" data-engine-note="{{ e.key }}"{% unless forloop.first %} hidden{% endunless %}>{{ e.note }}</p>
-              {%- endfor %}
+              <p class="su-enote">{% for s in o.os %}<span data-os-note="{{ s.key }}"{% unless forloop.first %} hidden{% endunless %}>{{ s.note }} </span>{% endfor %}{% for e in o.engines %}<span data-engine-note="{{ e.key }}"{% unless forloop.first %} hidden{% endunless %}>{{ e.note }}</span>{% endfor %}</p>
               <p class="su-enojs">The commands use {{ e0.use }}.{% for e in o.engines offset: 1 %} With {{ e.name }}, use {{ e.use }}.{% endfor %}</p>
             </div>
             {%- endif %}
@@ -137,16 +146,32 @@
                 {{ st_a }}
                 {%- endif %}
                 {%- if st.code %}
-                <div class="code-box sm"{% for e in o.engines %}{% assign ec = st.code %}{% for r in e.swap %}{% assign ec = ec | replace: r[0], r[1] %}{% endfor %} data-ecode-{{ e.key }}="{{ ec | escape }}" data-erun-{{ e.key }}="{{ e.runtime | default: e.key }}"{% endfor %}><pre><code>{{ st.code | escape }}</code></pre><button class="code-copy" type="button" data-hcopy="{{ st.code | escape }}"
+                {%- comment %} A step with a PowerShell version renders once per shell, each labeled; the picker shows the one for the chosen OS. {% endcomment %}
+                {%- assign shells = 'sh' | split: ',' %}
+                {%- if o.os and st.code_win %}{% assign shells = 'win,sh' | split: ',' %}{% endif %}
+                {%- for sh in shells %}
+                {%- if sh == 'win' %}{% assign sc = st.code_win %}{% else %}{% assign sc = st.code %}{% endif %}
+                {%- if shells.size > 1 %}
+                <p class="su-shell" data-shell="{{ sh }}">{% if sh == 'win' %}{{ sl.shell_win }}{% else %}{{ sl.shell_sh }}{% endif %}</p>
+                {%- endif %}
+                <div class="code-box sm"{% if shells.size > 1 %} data-shell="{{ sh }}"{% endif %}{% for e in o.engines %}{% assign ec = sc %}{% for r in e.swap %}{% assign ec = ec | replace: r[0], r[1] %}{% endfor %} data-ecode-{{ e.key }}="{{ ec | escape }}" data-erun-{{ e.key }}="{{ e.runtime | default: e.key }}"{% endfor %}><pre><code>{{ sc | escape }}</code></pre><button class="code-copy" type="button" data-hcopy="{{ sc | escape }}"
                   data-event="site/action" data-event-action="contentCopied" data-event-action-location="install-panel"
                   data-event-content-id="{{ o.id }}-{{ st.key }}" data-event-content-type="command"{% if e0 %} data-event-runtime-id="{{ e0.runtime | default: e0.key }}"{% endif %}>Copy</button></div>
+                {%- endfor %}
                 {%- endif %}</div></li>
               {%- endfor %}
             </ol>
             {%- if o.copy_all %}
-            <button class="qs-all" type="button" data-hcopy="{{ all_code | escape }}"{% for e in o.engines %}{% assign ec = all_code %}{% for r in e.swap %}{% assign ec = ec | replace: r[0], r[1] %}{% endfor %} data-ecode-{{ e.key }}="{{ ec | escape }}" data-erun-{{ e.key }}="{{ e.runtime | default: e.key }}"{% endfor %}
+            {%- assign shells = 'sh' | split: ',' %}
+            {%- if o.os %}{% for st in o.steps %}{% if st.code_win %}{% assign shells = 'sh,win' | split: ',' %}{% endif %}{% endfor %}{% endif %}
+            {%- for sh in shells %}
+            {%- if sh == 'win' %}
+            {%- capture ac %}{% for st in o.steps %}{% if st.code %}{% unless forloop.first %}{{ blank_line }}{% endunless %}{{ st.code_win | default: st.code }}{% endif %}{% endfor %}{% endcapture %}
+            {%- else %}{% assign ac = all_code %}{% endif %}
+            <button class="qs-all" type="button"{% if shells.size > 1 %} data-shell="{{ sh }}"{% if sh == 'win' %} hidden{% endif %}{% endif %} data-hcopy="{{ ac | escape }}"{% for e in o.engines %}{% assign ec = ac %}{% for r in e.swap %}{% assign ec = ec | replace: r[0], r[1] %}{% endfor %} data-ecode-{{ e.key }}="{{ ec | escape }}" data-erun-{{ e.key }}="{{ e.runtime | default: e.key }}"{% endfor %}
                     data-event="site/action" data-event-action="contentCopied" data-event-action-location="install-panel"
                     data-event-content-id="{{ o.id }}-all" data-event-content-type="command"{% if e0 %} data-event-runtime-id="{{ e0.runtime | default: e0.key }}"{% endif %}>{{ o.copy_all }}</button>
+            {%- endfor %}
             {%- endif %}
           </div>
         </div>
@@ -407,25 +432,45 @@
   });
   var cmdEl=document.getElementById('hInstall'),copyEl=document.getElementById('hInstallCopy');
   document.querySelectorAll('[data-agent]').forEach(function(a){a.addEventListener('click',function(){var agent=a.getAttribute('data-agent');document.querySelectorAll('[data-agent]').forEach(function(x){x.setAttribute('aria-pressed','false')});a.setAttribute('aria-pressed','true');cmdEl.textContent=a.getAttribute('data-cmd');copyEl.setAttribute('data-hcopy',a.getAttribute('data-cmd'));copyEl.setAttribute('data-event-harness-id',agent);copyEl.setAttribute('data-clarity-event','copy_skill_install_'+agent)})});
-  // Container engine picker in the setup dialog. Each command is rendered for
-  // every engine (data-ecode-<key>, with its runtime id in data-erun-<key>);
-  // picking one swaps the shown text, what Copy copies, and the runtime id
-  // its copy event carries. The choice is
-  // remembered per browser.
+  // Container engine picker in the setup dialog, under an operating system
+  // picker. Each command is rendered for every engine (data-ecode-<key>, with
+  // its runtime id in data-erun-<key>), and once per shell where Windows
+  // differs (data-shell: sh or win). The OS starts as the browser's on every
+  // visit; the reader can change it for this visit, for a VM or a wrong
+  // guess. It sets the shell and which engines are offered. The engine starts
+  // as the OS's first, Docker; picking one swaps the shown text, what Copy
+  // copies, and the runtime id its copy event carries. Neither choice is
+  // remembered.
+  var hubOS=(function(){
+    var ua=navigator.userAgent||'',p=((navigator.userAgentData&&navigator.userAgentData.platform)||navigator.platform||'')+' '+ua;
+    if(/android|iphone|ipad/i.test(ua))return null;
+    if(/mac/i.test(p))return 'mac';
+    if(/win/i.test(p))return 'windows';
+    if(/linux|x11|cros/i.test(p))return 'linux';
+    return null;
+  })();
   document.querySelectorAll('.su-engine').forEach(function(box){
-    var dlg=box.closest('dialog')||document,btns=box.querySelectorAll('[data-engine]');
-    function pick(key){
-      btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-engine')===key))});
-      box.querySelectorAll('[data-engine-note]').forEach(function(n){n.hidden=n.getAttribute('data-engine-note')!==key});
-      dlg.querySelectorAll('[data-ecode-'+key+']').forEach(function(el){
-        var code=el.getAttribute('data-ecode-'+key),btn=el.matches('button')?el:el.querySelector('.code-copy'),shown=el.querySelector('pre code');
+    var dlg=box.closest('dialog')||document,obtns=box.querySelectorAll('[data-os]'),btns=box.querySelectorAll('[data-engine]');
+    var all=[].map.call(btns,function(b){return b.getAttribute('data-engine')});
+    var os=(hubOS&&box.querySelector('[data-os="'+hubOS+'"]')?hubOS:null)||(obtns[0]?obtns[0].getAttribute('data-os'):null);
+    var eng=null;
+    function render(){
+      var ob=os&&box.querySelector('[data-os="'+os+'"]'),shell=ob?ob.getAttribute('data-os-shell'):'sh',ok=ob?ob.getAttribute('data-os-engines').split(' '):all;
+      if(ok.indexOf(eng)<0)eng=ok[0];
+      obtns.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-os')===os))});
+      btns.forEach(function(b){var k=b.getAttribute('data-engine');b.hidden=ok.indexOf(k)<0;b.setAttribute('aria-pressed',String(k===eng))});
+      box.querySelectorAll('[data-os-note]').forEach(function(n){n.hidden=n.getAttribute('data-os-note')!==os});
+      box.querySelectorAll('[data-engine-note]').forEach(function(n){n.hidden=n.getAttribute('data-engine-note')!==eng});
+      dlg.querySelectorAll('[data-shell]').forEach(function(el){el.hidden=el.getAttribute('data-shell')!==shell});
+      dlg.querySelectorAll('[data-ecode-'+eng+']').forEach(function(el){
+        var code=el.getAttribute('data-ecode-'+eng),btn=el.matches('button')?el:el.querySelector('.code-copy'),shown=el.querySelector('pre code');
         if(shown)shown.textContent=code;
-        if(btn){btn.setAttribute('data-hcopy',code);btn.setAttribute('data-event-runtime-id',el.getAttribute('data-erun-'+key))}
+        if(btn){btn.setAttribute('data-hcopy',code);btn.setAttribute('data-event-runtime-id',el.getAttribute('data-erun-'+eng))}
       });
     }
-    var saved=null;try{saved=localStorage.getItem('hub.engine')}catch(e){}
-    if(saved&&box.querySelector('[data-engine="'+saved+'"]'))pick(saved);
-    btns.forEach(function(b){b.addEventListener('click',function(){var key=b.getAttribute('data-engine');pick(key);try{localStorage.setItem('hub.engine',key)}catch(e){}})});
+    render();
+    obtns.forEach(function(b){b.addEventListener('click',function(){os=b.getAttribute('data-os');render()})});
+    btns.forEach(function(b){b.addEventListener('click',function(){eng=b.getAttribute('data-engine');render()})});
   });
   // Hero demo. The animation is CSS. The first run's clock ends after the
   // first app has shown for a few seconds; from then on the demo is .cycling,

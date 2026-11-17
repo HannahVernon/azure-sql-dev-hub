@@ -65,6 +65,10 @@ demo:
 # applied in order, that turn them into its own (Apple container's match the
 # MSSQL extension's wizard), `use` says which command to use when the picker
 # can't run, and `key` is the telemetry runtime id (`runtime` overrides it).
+# `os` adds an operating system picker before it, set from the browser and
+# changeable: each lists the `engines` it offers, in order, and `shell: win`
+# shows each step's `code_win` (PowerShell) in place of `code` (bash or zsh).
+# Without scripts both versions show, labeled.
 # In `links`, a path on this site is a page here; a full URL is outbound, of
 # `type` docs or other.
 setup_heading: Get a database running
@@ -84,6 +88,11 @@ setup_labels:
   vscode_get: Get the extension
   vscode_get_href: https://marketplace.visualstudio.com/items?itemName=ms-mssql.mssql
   engine: Choose your container engine
+  engine_label: Engine
+  os: Choose your operating system
+  os_label: Operating system
+  shell_sh: macOS and Linux, in bash or zsh
+  shell_win: Windows, in PowerShell
 setup:
 - key: free
   id: free-setup
@@ -148,12 +157,18 @@ setup:
     code: docker pull mcr.microsoft.com/mssql/azure-sql-db-server:latest
   - key: run
     title: Start the container
-    text: In bash or zsh. This makes a strong SA password and starts the engine on localhost, port 1433.
+    text: This makes a strong SA password and starts the engine on localhost, port 1433.
     code: |-
       MSSQL_SA_PASSWORD="Aa1$(openssl rand -hex 16)"
       docker run --name sqldb -e "ACCEPT_EULA=Y" \
         -e "MSSQL_SA_PASSWORD=$MSSQL_SA_PASSWORD" \
         -p 127.0.0.1:1433:1433 -d \
+        mcr.microsoft.com/mssql/azure-sql-db-server:latest
+    code_win: |-
+      $env:MSSQL_SA_PASSWORD = "Aa1" + [guid]::NewGuid().ToString("N")
+      docker run --name sqldb -e "ACCEPT_EULA=Y" `
+        -e "MSSQL_SA_PASSWORD=$env:MSSQL_SA_PASSWORD" `
+        -p 127.0.0.1:1433:1433 -d `
         mcr.microsoft.com/mssql/azure-sql-db-server:latest
   - key: query
     title: Connect and query
@@ -167,7 +182,31 @@ setup:
       docker exec sqldb /opt/mssql-tools18/bin/sqlcmd \
         -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C \
         -Q "SELECT @@VERSION;"
+    code_win: |-
+      for ($i = 0; $i -lt 30; $i++) {
+        docker exec sqldb /opt/mssql-tools18/bin/sqlcmd -S localhost `
+          -U sa -P "$env:MSSQL_SA_PASSWORD" -C -Q "SELECT 1" *> $null
+        if ($LASTEXITCODE -eq 0) { break }
+        Start-Sleep 2
+      }
+      docker exec sqldb /opt/mssql-tools18/bin/sqlcmd `
+        -S localhost -U sa -P "$env:MSSQL_SA_PASSWORD" -C `
+        -Q "SELECT @@VERSION;"
   copy_all: Copy all three commands
+  os:
+  - key: windows
+    name: Windows
+    shell: win
+    note: Run these in PowerShell.
+    engines: [docker, podman, wsl]
+  - key: mac
+    name: macOS
+    note: Run these in Terminal.
+    engines: [docker, podman, apple]
+  - key: linux
+    name: Linux
+    note: Run these in bash or zsh.
+    engines: [docker, podman]
   engines:
   - key: docker
     name: Docker

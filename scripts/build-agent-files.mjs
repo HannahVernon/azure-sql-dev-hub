@@ -135,7 +135,8 @@ function setupOption(o, labels, skills) {
   if (o.need) out.push(plain(o.need), '');
   if (o.engines && o.engines.length) {
     const [first, ...rest] = o.engines;
-    out.push(`The commands use ${plain(first.use)}. Other engines' full commands follow the steps.`, '');
+    out.push(`The commands use ${plain(first.use)}${o.os ? `, in bash or zsh` : ''}. ${o.os ? 'The PowerShell version for Windows and other' : 'Other'} engines' full commands follow the steps.`, '');
+    for (const s of o.os || []) out.push(`- ${s.name}: ${plain(s.note)} Engines: ${s.engines.map((k) => o.engines.find((e) => e.key === k).name).join(', ')}.`);
     for (const e of o.engines) out.push(`- ${e.name}: ${plain(e.note)}`);
     out.push('');
   }
@@ -145,10 +146,18 @@ function setupOption(o, labels, skills) {
     if (st.code) out.push(fence(st.code, /^SELECT/.test(st.code) ? 'sql' : 'bash'), '');
   }
   if (o.engines) {
-    const all = (o.steps || []).map((st) => st.code).filter(Boolean).join('\n\n');
-    for (const e of o.engines.slice(1)) {
-      const code = (e.swap || []).reduce((c, [from, to]) => c.split(from).join(to), all);
-      out.push(`With ${e.name}:`, '', fence(code, 'bash'), '');
+    // Each engine's commands in each shell an OS offering it uses: bash or
+    // zsh, and PowerShell on Windows. Docker in bash is the steps above.
+    const steps = (o.steps || []).filter((st) => st.code);
+    const shells = { sh: steps.map((st) => st.code).join('\n\n') };
+    if (o.os && steps.some((st) => st.code_win)) shells.win = steps.map((st) => st.code_win || st.code).join('\n\n');
+    const swap = (e, code) => (e.swap || []).reduce((c, [from, to]) => c.split(from).join(to), code);
+    for (const [i, e] of o.engines.entries()) {
+      const oses = (o.os || []).filter((s) => s.engines.includes(e.key));
+      const useSh = !o.os || oses.some((s) => (s.shell || 'sh') === 'sh');
+      const useWin = shells.win && oses.some((s) => s.shell === 'win');
+      if (useSh && i > 0) out.push(`With ${e.name}:`, '', fence(swap(e, shells.sh), 'bash'), '');
+      if (useWin) out.push(`With ${e.name} on Windows, in PowerShell:`, '', fence(swap(e, shells.win), 'powershell'), '');
     }
   }
   if (o.free) {
